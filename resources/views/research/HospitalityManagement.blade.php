@@ -3,7 +3,7 @@
 @section('title', 'Hospitality Managment Research')
 
 @section('content')
-<h1 class="mb-0">Comptech Research</h1>
+
 <hr/>
 @if(session()->has('success'))
 <div class="alert alert-success" role="alert">

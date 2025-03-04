@@ -3,49 +3,63 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\ResearchContoller;
-use App\Http\Controllers\ResearchController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::controller(AuthController::class)->group(function(){
+Route::controller(AuthController::class)->group(function () {
     Route::get('register', 'register')->name('register');
     Route::post('register', 'registerSave')->name('register.save');
-
+    
     Route::get('login', 'login')->name('login');
     Route::post('login', 'loginAction')->name('login.action');
 
     Route::get('logout', 'logout')->middleware('auth')->name('logout');
 });
 
-Route::controller(OtpController::class)->group(function(){
+// OTP Routes
+Route::controller(OtpController::class)->group(function () {
     Route::get('otp', 'showOtpForm')->name('otp.verify');
     Route::post('otp', 'verifyOtp')->name('otp.verify');
+    Route::post('otp/resend', 'resendOtp')->name('otp.resend');
 });
 
-Route::middleware('auth')->group(function(){
+// Protected Routes (Requires Authentication)
+Route::middleware('auth')->group(function () {
     Route::get('dashboard', [ResearchContoller::class, 'index'])->name('dashboard');
 
-    Route::controller(ResearchContoller::class)->prefix('research')->group(function(){
+    // Research Routes
+    Route::controller(ResearchContoller::class)->prefix('research')->group(function () {
         Route::get('', 'index')->name('research');
-        Route::get('create', 'create')->name('research.create');
-        Route::post('store', 'store')->name('research.store');
-        Route::get('{research}/edit', 'edit')->name('research.edit');
-        Route::put('{research}', 'update')->name('research.update');
-        Route::delete('{research}', 'destroy')->name('research.destroy');
+        Route::get('view/{research}', 'view')->name('research.view');
+        Route::get('file/{id}', 'viewFile')->name('research.file'); // ✅ View File Route
+        Route::get('user-view', 'userView')->name('research.userView');
         Route::get('department/{department}', 'department')->name('research.department');
+        Route::get('search', 'search')->name('research.search');
     });
 
+    // Admin-Only Research Routes
+    Route::middleware('can:isAdmin')->group(function () {
+        Route::controller(ResearchContoller::class)->prefix('research')->group(function () {
+            Route::get('create', 'create')->name('research.create');
+            Route::post('store', 'store')->name('research.store');
+            Route::get('{research}/edit', 'edit')->name('research.edit');
+            Route::put('{research}', 'update')->name('research.update');
+            Route::delete('{research}', 'destroy')->name('research.destroy');
+        });
+    });
+
+    // Other Authenticated Routes
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+    Route::get('/report', [ReportController::class, 'index'])->name('report');
 });
 
-// Test email route
+// Test Email Route
 Route::get('/test-email', function () {
     Mail::raw('This is a test email', function ($message) {
-        $message->to('your_gmail_username@gmail.com') // Replace with your email address
-                ->subject('Test Email');
+        $message->to('joshuamangubat62@gmail.com')->subject('Test Email');
     });
 
     return 'Email sent';

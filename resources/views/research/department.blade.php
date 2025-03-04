@@ -1,16 +1,19 @@
 @extends('layouts.app')
 
-@section('title','Home Products')
+@section('title', 'Research List - ' . $department)
 
 @section('content')
 <div class="d-flex align-items-center justify-content-between">
-  
-    <a href="{{ route('research.create') }}" class="btn btn-primary">Add Researchs</a>
 </div>
 <hr/>
 @if(session()->has('success'))
 <div class="alert alert-success" role="alert">
     {{ session()->get('success') }}
+</div>
+@endif
+@if(session()->has('error'))
+<div class="alert alert-danger" role="alert">
+    {{ session()->get('error') }}
 </div>
 @endif
 <table class="table table-hover">
@@ -36,12 +39,15 @@
             <td>{{ $research->Location }}</td>
             <td>{{ $research->subject_area }}</td>
             <td>
-                <a href="{{ route('research.edit', $research->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                <form action="{{ route('research.destroy', $research->id) }}" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
+                <a href="{{ route('research.view', $research->id) }}" class="btn btn-info btn-sm">View</a>
+                @if(Auth::user()->role == 'admin')
+                    <a href="{{ route('research.edit', $research->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('research.destroy', $research->id) }}" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                @endif
             </td>
         </tr>
         @endforeach

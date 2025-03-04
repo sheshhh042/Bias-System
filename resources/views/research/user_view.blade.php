@@ -1,9 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Comptech Research')
+@section('title', 'Research List')
 
 @section('content')
-<h1 class="mb-0">Comptech Research</h1>
+<div class="d-flex align-items-center justify-content-between">
+</div>
 <hr/>
 @if(session()->has('success'))
 <div class="alert alert-success" role="alert">
@@ -33,20 +34,33 @@
             <td>{{ $research->Location }}</td>
             <td>{{ $research->subject_area }}</td>
             <td>
-                <a href="{{ route('research.edit', $research->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                <form action="{{ route('research.destroy', $research->id) }}" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#viewFile{{ $research->id }}">
+                                View
+                            </button>
             </td>
         </tr>
         @endforeach
         @else
         <tr>
-            <td colspan="7" class="text-center">No research found</td>
+            <td colspan="7" class="text-center">No Research found</td>
         </tr>
         @endif
     </tbody>
 </table>
+
+
+<!-- View Research Modal -->
+<<div class="modal fade" id="viewFile{{ $research->id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Research File: {{ $research->research_title }}</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <iframe src="{{ asset('storage/' . $research->file_path) }}" width="100%" height="500px"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
